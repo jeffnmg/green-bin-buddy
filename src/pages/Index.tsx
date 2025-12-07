@@ -39,7 +39,8 @@ const Index = () => {
       const formData = new FormData();
       formData.append("file", file);
 
-      const response = await fetch("https://TU-URL-DE-CLOUD-RUN.run.app/clasificar/", {
+      const response = await fetch("https://reciclaje-api-64666058644.us-central1.run.app/clasificar/
+", {
         method: "POST",
         body: formData,
       });
