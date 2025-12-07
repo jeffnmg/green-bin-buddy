@@ -95,6 +95,13 @@ export type Database = {
             foreignKeyName: "scans_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
+            referencedRelation: "leaderboard_users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "scans_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
             referencedRelation: "users"
             referencedColumns: ["id"]
           },
@@ -125,6 +132,13 @@ export type Database = {
             columns: ["achievement_id"]
             isOneToOne: false
             referencedRelation: "achievements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_achievements_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "leaderboard_users"
             referencedColumns: ["id"]
           },
           {
@@ -183,7 +197,33 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      leaderboard_users: {
+        Row: {
+          id: string | null
+          objetos_escaneados: number | null
+          puntos: number | null
+          racha_actual: number | null
+          racha_maxima: number | null
+          username: string | null
+        }
+        Insert: {
+          id?: string | null
+          objetos_escaneados?: number | null
+          puntos?: number | null
+          racha_actual?: number | null
+          racha_maxima?: number | null
+          username?: string | null
+        }
+        Update: {
+          id?: string | null
+          objetos_escaneados?: number | null
+          puntos?: number | null
+          racha_actual?: number | null
+          racha_maxima?: number | null
+          username?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       [_ in never]: never
