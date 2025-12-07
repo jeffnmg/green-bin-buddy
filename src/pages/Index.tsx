@@ -7,10 +7,12 @@ import { ErrorMessage } from "@/components/ErrorMessage";
 import { Leaf } from "lucide-react";
 
 interface ClassificationResult {
-  tipo_residuo: string;
-  contenedor: string;
-  consejo: string;
-  confianza: number;
+  tipo?: string;
+  caneca?: string;
+  categoria?: string;
+  consejo?: string;
+  confianza?: number;
+  reciclable?: boolean;
 }
 
 const Index = () => {
