@@ -164,7 +164,7 @@ export function ChatWidget() {
     setMessages(prev => [...prev, userMessage, botResponse]);
   };
   const sendMessageToAI = async (message: string) => {
-    if (!message.trim() || !userInternalId || isLoading) return;
+    if (!message.trim() || isLoading) return;
     const userMessage: Message = {
       id: `user-${Date.now()}`,
       type: "user",
@@ -179,8 +179,7 @@ export function ChatWidget() {
         error
       } = await supabase.functions.invoke("chat", {
         body: {
-          message,
-          userId: userInternalId
+          message
         }
       });
       if (error) throw error;

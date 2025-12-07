@@ -13,11 +13,11 @@ serve(async (req) => {
   }
 
   try {
-    const { message, userId } = await req.json();
+    const { message } = await req.json();
 
-    if (!message || !userId) {
+    if (!message) {
       return new Response(
-        JSON.stringify({ error: 'Message and userId are required' }),
+        JSON.stringify({ error: 'Message is required' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
@@ -31,21 +31,47 @@ serve(async (req) => {
       );
     }
 
-    // Create Supabase client
+    // Create Supabase client with user's auth token
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    // Get user data
-    const { data: userData, error: userError } = await supabase
+    // Extract the user from the Authorization header (JWT is verified by Supabase)
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader) {
+      return new Response(
+        JSON.stringify({ error: 'Authorization header is required' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const token = authHeader.replace('Bearer ', '');
+    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
+    
+    if (authError || !user) {
+      console.error('Auth error:', authError);
+      return new Response(
+        JSON.stringify({ error: 'Invalid or expired token' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Get the user's internal ID from our users table
+    const { data: userRecord, error: userRecordError } = await supabase
       .from('users')
-      .select('puntos, objetos_escaneados, racha_actual')
-      .eq('id', userId)
+      .select('id, puntos, objetos_escaneados, racha_actual')
+      .eq('auth_user_id', user.id)
       .single();
 
-    if (userError) {
-      console.error('Error fetching user data:', userError);
+    if (userRecordError) {
+      console.error('Error fetching user record:', userRecordError);
+      return new Response(
+        JSON.stringify({ error: 'User not found' }),
+        { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
+
+    const userId = userRecord.id;
 
     // Get last 3 scans
     const { data: scansData, error: scansError } = await supabase
@@ -68,9 +94,9 @@ serve(async (req) => {
 Respondes preguntas sobre reciclaje de forma clara y motivadora.
 
 Contexto del usuario:
-- Puntos: ${userData?.puntos || 0}
-- Objetos escaneados: ${userData?.objetos_escaneados || 0}
-- Racha: ${userData?.racha_actual || 0} días
+- Puntos: ${userRecord?.puntos || 0}
+- Objetos escaneados: ${userRecord?.objetos_escaneados || 0}
+- Racha: ${userRecord?.racha_actual || 0} días
 - Últimos escaneos: ${ultimosEscaneos}
 
 Usa este contexto para personalizar tus respuestas.
