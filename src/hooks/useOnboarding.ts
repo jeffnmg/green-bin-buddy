@@ -11,29 +11,27 @@ export function useOnboarding() {
   const { user, profile } = useAuth();
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [checkedUserId, setCheckedUserId] = useState<string | null>(null);
 
   useEffect(() => {
-    // Show onboarding when user is authenticated (don't wait for profile)
-    if (user) {
-      checkOnboardingStatus(user.id);
-    } else {
+    // Only check if user exists and we haven't checked this user yet
+    if (user && checkedUserId !== user.id) {
+      const completed = localStorage.getItem(getOnboardingKey(user.id));
+      
+      if (completed === "true") {
+        setShowOnboarding(false);
+      } else {
+        // Show onboarding for users who haven't seen it
+        setShowOnboarding(true);
+      }
+      setCheckedUserId(user.id);
+      setLoading(false);
+    } else if (!user) {
       setShowOnboarding(false);
       setLoading(false);
+      setCheckedUserId(null);
     }
-  }, [user]);
-
-  const checkOnboardingStatus = (userId: string) => {
-    // Check localStorage with user-specific key
-    const completed = localStorage.getItem(getOnboardingKey(userId));
-    
-    if (completed) {
-      setShowOnboarding(false);
-    } else {
-      // Show onboarding for users who haven't seen it
-      setShowOnboarding(true);
-    }
-    setLoading(false);
-  };
+  }, [user, checkedUserId]);
 
   const completeOnboarding = useCallback(async () => {
     if (!user) return;
