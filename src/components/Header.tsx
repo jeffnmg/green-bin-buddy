@@ -1,6 +1,7 @@
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
-import { LogOut, User, Trophy } from 'lucide-react';
+import { LogOut, User, Trophy, ChartBar } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -12,6 +13,7 @@ import {
 import { toast } from 'sonner';
 
 export default function Header() {
+  const navigate = useNavigate();
   const { profile, signOut } = useAuth();
 
   const handleSignOut = async () => {
@@ -59,6 +61,11 @@ export default function Header() {
                 </div>
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={() => navigate('/profile')} className="cursor-pointer">
+                <ChartBar className="w-4 h-4 mr-2" />
+                Ver mi perfil
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
               <DropdownMenuItem className="flex justify-between">
                 <span>Puntos</span>
                 <span className="font-medium text-primary">{profile.puntos}</span>
@@ -72,7 +79,7 @@ export default function Header() {
                 <span className="font-medium">🔥 {profile.racha_actual}</span>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={handleSignOut} className="text-destructive">
+              <DropdownMenuItem onClick={handleSignOut} className="text-destructive cursor-pointer">
                 <LogOut className="w-4 h-4 mr-2" />
                 Cerrar sesión
               </DropdownMenuItem>
