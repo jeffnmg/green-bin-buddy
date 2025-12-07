@@ -5,7 +5,9 @@ import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { ResultCard } from "@/components/ResultCard";
 import { ErrorMessage } from "@/components/ErrorMessage";
 import Header from "@/components/Header";
+import { useGamification } from "@/hooks/useGamification";
 import { Leaf } from "lucide-react";
+
 interface ClassificationResult {
   tipo?: string;
   caneca?: string;
@@ -13,6 +15,15 @@ interface ClassificationResult {
   consejo?: string;
   confianza?: number;
   reciclable?: boolean;
+  objeto_detectado?: string;
+  objeto_detectado_espanol?: string;
+  nivel_confianza?: "alta" | "media" | "baja";
+  emoji_confianza?: string;
+  sugerencia_foto?: string;
+  dato_curioso?: string;
+  impacto_ambiental?: string;
+  ejemplos?: string[];
+  puntos?: number;
 }
 
 const Index = () => {
@@ -21,6 +32,8 @@ const Index = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [result, setResult] = useState<ClassificationResult | null>(null);
   const [error, setError] = useState<string | null>(null);
+  
+  const { registerScan } = useGamification();
 
   const handleImageSelect = async (file: File) => {
     setSelectedImage(file);
@@ -53,6 +66,16 @@ const Index = () => {
 
       const data: ClassificationResult = await response.json();
       setResult(data);
+
+      // Register scan in gamification system
+      await registerScan({
+        objeto_detectado: data.objeto_detectado || data.tipo || 'objeto',
+        objeto_detectado_espanol: data.objeto_detectado_espanol,
+        tipo: data.tipo,
+        caneca: data.caneca,
+        reciclable: data.reciclable,
+        confianza: data.confianza,
+      });
     } catch (err) {
       console.error("Error clasificando imagen:", err);
       setError(
