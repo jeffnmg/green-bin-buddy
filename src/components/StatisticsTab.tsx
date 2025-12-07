@@ -22,7 +22,6 @@ import {
   Cell,
   LineChart,
   Line,
-  Legend,
 } from "recharts";
 import { Download, TrendingUp, Calendar, Target, Recycle, Percent } from "lucide-react";
 import { format, subDays, startOfDay, isAfter } from "date-fns";
