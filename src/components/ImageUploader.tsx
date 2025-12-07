@@ -70,6 +70,7 @@ export const ImageUploader = ({ onImageSelect, disabled }: ImageUploaderProps) =
       <input
         type="file"
         accept="image/jpeg,image/png,image/jpg"
+        capture="environment"
         onChange={handleFileInput}
         className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
         disabled={disabled}
