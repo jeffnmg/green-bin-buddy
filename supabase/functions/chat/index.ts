@@ -1,6 +1,7 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { decode } from "https://deno.land/x/djwt@v2.8/mod.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -31,11 +32,6 @@ serve(async (req) => {
       );
     }
 
-    // Create Supabase client
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY')!;
-    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-
     // Extract the Authorization header
     const authHeader = req.headers.get('Authorization');
     console.log('Auth header present:', !!authHeader);
@@ -49,33 +45,34 @@ serve(async (req) => {
 
     const token = authHeader.replace('Bearer ', '');
     
-    // Create client with the user's token for auth verification
-    const supabaseClient = createClient(supabaseUrl, supabaseAnonKey, {
-      global: {
-        headers: { Authorization: `Bearer ${token}` }
+    // Decode JWT to get user ID (without verification - Supabase already verified it via verify_jwt)
+    let userId: string;
+    try {
+      const [_header, payload, _signature] = decode(token);
+      userId = (payload as { sub?: string }).sub || '';
+      console.log('User ID from JWT:', userId);
+      
+      if (!userId) {
+        throw new Error('No user ID in token');
       }
-    });
-    
-    const { data: { user }, error: authError } = await supabaseClient.auth.getUser();
-    
-    if (authError || !user) {
-      console.error('Auth error:', authError?.message || 'No user found');
+    } catch (jwtError) {
+      console.error('JWT decode error:', jwtError);
       return new Response(
-        JSON.stringify({ error: 'Invalid or expired token. Please log in again.' }),
+        JSON.stringify({ error: 'Invalid token format' }),
         { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
-    
-    console.log('User authenticated:', user.id);
-    
-    // Use service role client for database queries
+
+    // Create Supabase client with service role for database queries
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
     // Get the user's internal ID from our users table
     const { data: userRecord, error: userRecordError } = await supabase
       .from('users')
       .select('id, puntos, objetos_escaneados, racha_actual')
-      .eq('auth_user_id', user.id)
+      .eq('auth_user_id', userId)
       .single();
 
     if (userRecordError) {
@@ -86,13 +83,13 @@ serve(async (req) => {
       );
     }
 
-    const userId = userRecord.id;
+    const internalUserId = userRecord.id;
 
     // Get last 3 scans
     const { data: scansData, error: scansError } = await supabase
       .from('scans')
       .select('objeto_detectado_espanol, objeto_detectado, tipo_residuo, reciclable, created_at')
-      .eq('user_id', userId)
+      .eq('user_id', internalUserId)
       .order('created_at', { ascending: false })
       .limit(3);
 
