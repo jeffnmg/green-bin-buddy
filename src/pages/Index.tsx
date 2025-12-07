@@ -13,6 +13,7 @@ import { OnboardingTour } from "@/components/OnboardingTour";
 import { useGamification } from "@/hooks/useGamification";
 import { useOnboarding } from "@/hooks/useOnboarding";
 import { useAuth } from "@/contexts/AuthContext";
+import { ChatWidget } from "@/components/ChatWidget";
 import { Leaf } from "lucide-react";
 
 interface ClassificationResult {
@@ -261,6 +262,9 @@ const Index = () => {
           <p>🌱 Juntos cuidamos el planeta</p>
         </footer>
       </div>
+
+      {/* Chat Widget */}
+      <ChatWidget />
     </main>
   );
 };
