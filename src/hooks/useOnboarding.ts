@@ -11,12 +11,14 @@ export function useOnboarding() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (user && profile) {
+    // Show onboarding when user is authenticated (don't wait for profile)
+    if (user) {
       checkOnboardingStatus();
     } else {
+      setShowOnboarding(false);
       setLoading(false);
     }
-  }, [user, profile]);
+  }, [user]);
 
   const checkOnboardingStatus = () => {
     // Check localStorage first
