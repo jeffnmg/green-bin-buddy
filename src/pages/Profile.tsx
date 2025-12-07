@@ -23,12 +23,12 @@ import {
   Star,
   Search,
   Calendar,
-  User,
   LogOut,
 } from "lucide-react";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { toast } from "sonner";
+import { getLevelInfo, getLevelEmoji } from "@/lib/levelSystem";
 
 interface UserStats {
   id: string;
@@ -149,10 +149,6 @@ export default function Profile() {
     toast.success("Sesión cerrada");
     navigate("/auth");
   };
-
-  const getLevel = (puntos: number) => Math.floor(puntos / 100);
-  const getLevelProgress = (puntos: number) => puntos % 100;
-
   const getProgressForAchievement = (achievement: Achievement): number => {
     if (!stats) return 0;
     let current = 0;
@@ -231,8 +227,8 @@ export default function Profile() {
     );
   }
 
-  const level = getLevel(stats.puntos);
-  const levelProgress = getLevelProgress(stats.puntos);
+  const levelInfo = getLevelInfo(stats.puntos);
+  const levelEmoji = getLevelEmoji(levelInfo.tier);
 
   return (
     <div className="min-h-screen bg-background">
@@ -252,29 +248,49 @@ export default function Profile() {
 
       <main className="max-w-4xl mx-auto px-4 py-6 space-y-6">
         {/* Profile Header */}
-        <Card className="bg-gradient-to-br from-primary/10 via-card to-emerald-500/10 border-primary/20">
+        <Card className="overflow-hidden">
           <CardContent className="pt-6">
             <div className="flex flex-col sm:flex-row items-center gap-4">
-              <div className="w-20 h-20 rounded-full bg-primary/20 flex items-center justify-center text-4xl border-4 border-primary/30">
-                <User className="w-10 h-10 text-primary" />
+              {/* Avatar with level border */}
+              <div 
+                className={`w-24 h-24 rounded-full flex items-center justify-center text-5xl border-4 ${levelInfo.borderColor} ${levelInfo.bgColor}`}
+              >
+                {levelEmoji}
               </div>
               <div className="flex-1 text-center sm:text-left">
                 <h2 className="text-2xl font-bold text-foreground">
                   {stats.username}
                 </h2>
+                <p className={`font-medium ${levelInfo.textColor}`}>
+                  {levelEmoji} {levelInfo.title}
+                </p>
                 <p className="text-muted-foreground text-sm">{stats.email}</p>
                 <div className="mt-2 flex items-center justify-center sm:justify-start gap-2">
-                  <Badge variant="secondary" className="text-sm">
-                    Nivel {level}
+                  <Badge 
+                    className="text-sm text-white"
+                    style={{ backgroundColor: levelInfo.color }}
+                  >
+                    Nivel {levelInfo.level}
                   </Badge>
                   <span className="text-xs text-muted-foreground">
-                    {levelProgress}/100 para nivel {level + 1}
+                    {levelInfo.progressToNext}/100 para nivel {levelInfo.level + 1}
                   </span>
                 </div>
               </div>
             </div>
             <div className="mt-4">
-              <Progress value={levelProgress} className="h-2" />
+              <div className="w-full h-3 bg-muted rounded-full overflow-hidden">
+                <div 
+                  className="h-full rounded-full transition-all duration-500"
+                  style={{ 
+                    width: `${levelInfo.progressToNext}%`,
+                    backgroundColor: levelInfo.color 
+                  }}
+                />
+              </div>
+              <p className="text-xs text-muted-foreground mt-1 text-center sm:text-left">
+                {100 - levelInfo.progressToNext} puntos para el siguiente nivel
+              </p>
             </div>
           </CardContent>
         </Card>
