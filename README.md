@@ -37,7 +37,7 @@ Aplicación web progresiva (PWA) desarrollada con React, TypeScript y Supabase q
 ### Estructura de Directorios
 
 
-/
+
 ├── src/
 │   ├── components/           # Componentes React reutilizables
 │   │   ├── ui/              # Componentes base de Shadcn
@@ -78,7 +78,7 @@ Aplicación web progresiva (PWA) desarrollada con React, TypeScript y Supabase q
 │   │       └── index.ts
 │   └── migrations/          # Database migrations
 └── public/
-/
+
 
 
 ## Modelo de Datos
