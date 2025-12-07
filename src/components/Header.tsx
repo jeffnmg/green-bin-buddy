@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
-import { LogOut, User, ChartBar, Crown } from 'lucide-react';
+import { LogOut, User, ChartBar, Crown, Star } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -147,6 +147,10 @@ export default function Header() {
               <DropdownMenuItem onClick={() => navigate('/leaderboard')} className="cursor-pointer">
                 <Crown className="w-4 h-4 mr-2" />
                 Ver ranking
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => navigate('/achievements')} className="cursor-pointer">
+                <Star className="w-4 h-4 mr-2" />
+                Ver logros
               </DropdownMenuItem>
               
               <DropdownMenuSeparator />
