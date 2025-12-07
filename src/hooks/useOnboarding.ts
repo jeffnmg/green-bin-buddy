@@ -3,7 +3,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 
-const ONBOARDING_KEY = "ecoscan_onboarding_completed";
+const ONBOARDING_KEY_PREFIX = "ecoscan_onboarding_completed_";
+
+const getOnboardingKey = (userId: string) => `${ONBOARDING_KEY_PREFIX}${userId}`;
 
 export function useOnboarding() {
   const { user, profile } = useAuth();
@@ -13,16 +15,16 @@ export function useOnboarding() {
   useEffect(() => {
     // Show onboarding when user is authenticated (don't wait for profile)
     if (user) {
-      checkOnboardingStatus();
+      checkOnboardingStatus(user.id);
     } else {
       setShowOnboarding(false);
       setLoading(false);
     }
   }, [user]);
 
-  const checkOnboardingStatus = () => {
-    // Check localStorage first
-    const completed = localStorage.getItem(ONBOARDING_KEY);
+  const checkOnboardingStatus = (userId: string) => {
+    // Check localStorage with user-specific key
+    const completed = localStorage.getItem(getOnboardingKey(userId));
     
     if (completed) {
       setShowOnboarding(false);
@@ -34,8 +36,10 @@ export function useOnboarding() {
   };
 
   const completeOnboarding = useCallback(async () => {
-    // Save to localStorage
-    localStorage.setItem(ONBOARDING_KEY, "true");
+    if (!user) return;
+    
+    // Save to localStorage with user-specific key
+    localStorage.setItem(getOnboardingKey(user.id), "true");
     setShowOnboarding(false);
 
     // Award bonus points and achievement
@@ -93,14 +97,16 @@ export function useOnboarding() {
   }, [user, profile]);
 
   const skipOnboarding = useCallback(() => {
-    localStorage.setItem(ONBOARDING_KEY, "true");
+    if (!user) return;
+    localStorage.setItem(getOnboardingKey(user.id), "true");
     setShowOnboarding(false);
-  }, []);
+  }, [user]);
 
   const resetOnboarding = useCallback(() => {
-    localStorage.removeItem(ONBOARDING_KEY);
+    if (!user) return;
+    localStorage.removeItem(getOnboardingKey(user.id));
     setShowOnboarding(true);
-  }, []);
+  }, [user]);
 
   return {
     showOnboarding,
