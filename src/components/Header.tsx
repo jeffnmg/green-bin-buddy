@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
-import { LogOut, User, ChartBar } from 'lucide-react';
+import { LogOut, User, ChartBar, Crown } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -12,6 +12,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { toast } from 'sonner';
 import { getLevelInfo, getLevelEmoji } from '@/lib/levelSystem';
+import { Link } from 'react-router-dom';
 
 export default function Header() {
   const navigate = useNavigate();
@@ -35,7 +36,15 @@ export default function Header() {
           <span className="font-semibold text-foreground hidden sm:inline">EcoScan</span>
         </div>
         
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2">
+          {/* Leaderboard link */}
+          <Button variant="ghost" size="sm" asChild className="hidden sm:flex gap-1.5 text-muted-foreground hover:text-foreground">
+            <Link to="/leaderboard">
+              <Crown className="w-4 h-4" />
+              Ranking
+            </Link>
+          </Button>
+
           {/* Stats badges - Desktop */}
           <div className="hidden sm:flex items-center gap-2 text-sm">
             <span className="flex items-center gap-1 bg-primary/10 text-primary px-2 py-1 rounded-full">
@@ -134,6 +143,10 @@ export default function Header() {
               <DropdownMenuItem onClick={() => navigate('/profile')} className="cursor-pointer">
                 <ChartBar className="w-4 h-4 mr-2" />
                 Ver mi perfil
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => navigate('/leaderboard')} className="cursor-pointer">
+                <Crown className="w-4 h-4 mr-2" />
+                Ver ranking
               </DropdownMenuItem>
               
               <DropdownMenuSeparator />
