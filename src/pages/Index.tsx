@@ -181,7 +181,7 @@ const Index = () => {
       <div className="container max-w-xl mx-auto py-8 md:py-12 px-4 relative">
         {/* Header */}
         <header className="text-center mb-8 animate-fade-in">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl eco-gradient shadow-eco mb-6">
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl eco-gradient shadow-eco mb-6 animate-pulse-soft">
             <Leaf className="w-8 h-8 text-primary-foreground" />
           </div>
           <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-3">
