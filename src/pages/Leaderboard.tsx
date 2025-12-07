@@ -56,7 +56,7 @@ export default function Leaderboard() {
       if (tab === "racha") orderColumn = "racha_maxima";
 
       const { data, error } = await supabase
-        .from("users")
+        .from("leaderboard_users")
         .select("id, username, puntos, objetos_escaneados, racha_actual, racha_maxima")
         .order(orderColumn, { ascending: false })
         .limit(10);
@@ -88,7 +88,7 @@ export default function Leaderboard() {
           }
 
           const { count } = await supabase
-            .from("users")
+            .from("leaderboard_users")
             .select("*", { count: "exact", head: true })
             .gt(rankColumn, userValue);
 
