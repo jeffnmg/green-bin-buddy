@@ -7,7 +7,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   ArrowLeft,
   Trophy,
@@ -15,15 +14,12 @@ import {
   Flame,
   Star,
   LogOut,
-  BarChart3,
-  History,
 } from "lucide-react";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { toast } from "sonner";
 import { getLevelInfo, getLevelEmoji } from "@/lib/levelSystem";
 import { ScanHistory } from "@/components/ScanHistory";
-import { StatisticsTab } from "@/components/StatisticsTab";
 
 interface UserStats {
   id: string;
@@ -378,25 +374,8 @@ export default function Profile() {
           </CardContent>
         </Card>
 
-        {/* Tabs for Statistics and History */}
-        <Tabs defaultValue="statistics" className="w-full">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="statistics" className="flex items-center gap-2">
-              <BarChart3 className="w-4 h-4" />
-              Estadísticas
-            </TabsTrigger>
-            <TabsTrigger value="history" className="flex items-center gap-2">
-              <History className="w-4 h-4" />
-              Historial
-            </TabsTrigger>
-          </TabsList>
-          <TabsContent value="statistics" className="mt-4">
-            <StatisticsTab scans={scans} totalPoints={stats.puntos} />
-          </TabsContent>
-          <TabsContent value="history" className="mt-4">
-            <ScanHistory scans={scans} />
-          </TabsContent>
-        </Tabs>
+        {/* Scan History Section */}
+        <ScanHistory scans={scans} />
       </main>
     </div>
   );
