@@ -9,7 +9,9 @@ import { UserStatsCard } from "@/components/UserStatsCard";
 import { PointsAnimation } from "@/components/PointsAnimation";
 import { LevelUpCelebration } from "@/components/LevelUpCelebration";
 import { AchievementBadge } from "@/components/AchievementBadge";
+import { OnboardingTour } from "@/components/OnboardingTour";
 import { useGamification } from "@/hooks/useGamification";
+import { useOnboarding } from "@/hooks/useOnboarding";
 import { useAuth } from "@/contexts/AuthContext";
 import { Leaf } from "lucide-react";
 
@@ -54,6 +56,7 @@ const Index = () => {
   
   const { registerScan } = useGamification();
   const { profile } = useAuth();
+  const { showOnboarding, completeOnboarding, skipOnboarding } = useOnboarding();
 
   // Sync displayed points with profile
   useEffect(() => {
@@ -160,6 +163,14 @@ const Index = () => {
 
   return (
     <main className="min-h-screen bg-background">
+      {/* Onboarding Tour */}
+      {showOnboarding && (
+        <OnboardingTour 
+          onComplete={completeOnboarding} 
+          onSkip={skipOnboarding} 
+        />
+      )}
+
       {/* Header con usuario */}
       <Header />
       
