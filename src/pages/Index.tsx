@@ -27,7 +27,7 @@ const Index = () => {
     setImagePreview(URL.createObjectURL(file));
     setError(null);
     setResult(null);
-    
+
     await classifyImage(file);
   };
 
@@ -39,13 +39,10 @@ const Index = () => {
       const formData = new FormData();
       formData.append("file", file);
 
-      const response = await fetch(
-        "https://overenviously-pretelephonic-miley.ngrok-free.dev/clasificar/",
-        {
-          method: "POST",
-          body: formData,
-        }
-      );
+      const response = await fetch("https://TU-URL-DE-CLOUD-RUN.run.app/clasificar/", {
+        method: "POST",
+        body: formData,
+      });
 
       if (!response.ok) {
         throw new Error(`Error del servidor: ${response.status}`);
@@ -56,9 +53,7 @@ const Index = () => {
     } catch (err) {
       console.error("Error clasificando imagen:", err);
       setError(
-        err instanceof Error
-          ? err.message
-          : "No pudimos clasificar tu residuo. Por favor, intenta con otra imagen."
+        err instanceof Error ? err.message : "No pudimos clasificar tu residuo. Por favor, intenta con otra imagen.",
       );
     } finally {
       setIsLoading(false);
@@ -86,7 +81,7 @@ const Index = () => {
     <main className="min-h-screen bg-background">
       {/* Header decorativo */}
       <div className="absolute top-0 left-0 right-0 h-64 eco-gradient opacity-5 pointer-events-none" />
-      
+
       <div className="container max-w-xl mx-auto py-8 md:py-12 px-4 relative">
         {/* Header */}
         <header className="text-center mb-10 animate-fade-in">
@@ -96,9 +91,7 @@ const Index = () => {
           <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-3">
             ♻️ Clasificador Inteligente de Residuos
           </h1>
-          <p className="text-muted-foreground text-lg">
-            Sube una foto y te diremos en qué contenedor va
-          </p>
+          <p className="text-muted-foreground text-lg">Sube una foto y te diremos en qué contenedor va</p>
         </header>
 
         {/* Contenido principal */}
@@ -106,33 +99,25 @@ const Index = () => {
           {/* Uploader o Preview */}
           {!imagePreview ? (
             <div className="animate-fade-in-up" style={{ animationDelay: "0.1s" }}>
-              <ImageUploader
-                onImageSelect={handleImageSelect}
-                disabled={isLoading}
-              />
+              <ImageUploader onImageSelect={handleImageSelect} disabled={isLoading} />
             </div>
           ) : (
-            <ImagePreview
-              imageUrl={imagePreview}
-              onClear={handleReset}
-              disabled={isLoading}
-            />
+            <ImagePreview imageUrl={imagePreview} onClear={handleReset} disabled={isLoading} />
           )}
 
           {/* Estados */}
           {isLoading && <LoadingSpinner />}
 
-          {error && !isLoading && (
-            <ErrorMessage message={error} onRetry={handleRetry} />
-          )}
+          {error && !isLoading && <ErrorMessage message={error} onRetry={handleRetry} />}
 
-          {result && !isLoading && !error && (
-            <ResultCard result={result} onReset={handleReset} />
-          )}
+          {result && !isLoading && !error && <ResultCard result={result} onReset={handleReset} />}
         </section>
 
         {/* Footer */}
-        <footer className="text-center mt-12 text-sm text-muted-foreground animate-fade-in" style={{ animationDelay: "0.3s" }}>
+        <footer
+          className="text-center mt-12 text-sm text-muted-foreground animate-fade-in"
+          style={{ animationDelay: "0.3s" }}
+        >
           <p>🌱 Juntos cuidamos el planeta</p>
         </footer>
       </div>
