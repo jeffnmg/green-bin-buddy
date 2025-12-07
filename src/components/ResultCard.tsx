@@ -1,18 +1,7 @@
 import { Camera, Tag, CheckCircle, XCircle, MapPin, Package } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 
 interface ClassificationResult {
   tipo?: string;
@@ -29,7 +18,7 @@ interface ClassificationResult {
   dato_curioso?: string;
   ejemplos?: string[];
   puntos?: number;
-  impacto?: string;
+  impacto_ambiental?: string;
 }
 
 interface ResultCardProps {
@@ -38,7 +27,7 @@ interface ResultCardProps {
 }
 
 const extractEmoji = (caneca?: string): string => {
-  if (!caneca || typeof caneca !== 'string') {
+  if (!caneca || typeof caneca !== "string") {
     return "♻️";
   }
   const emojiRegex = /^[\p{Emoji_Presentation}\p{Extended_Pictographic}]/u;
@@ -49,28 +38,28 @@ const extractEmoji = (caneca?: string): string => {
 const getConfidenceStyles = (nivel: string) => {
   switch (nivel) {
     case "alta":
-      return { 
-        barColor: "bg-success", 
+      return {
+        barColor: "bg-success",
         textColor: "text-success",
-        label: "Alta precisión"
+        label: "Alta precisión",
       };
     case "media":
-      return { 
-        barColor: "bg-yellow-500", 
+      return {
+        barColor: "bg-yellow-500",
         textColor: "text-yellow-600",
-        label: "Precisión media"
+        label: "Precisión media",
       };
     case "baja":
-      return { 
-        barColor: "bg-destructive", 
+      return {
+        barColor: "bg-destructive",
         textColor: "text-destructive",
-        label: "⚠️ Confianza baja"
+        label: "⚠️ Confianza baja",
       };
     default:
-      return { 
-        barColor: "bg-muted", 
+      return {
+        barColor: "bg-muted",
         textColor: "text-muted-foreground",
-        label: "Sin datos"
+        label: "Sin datos",
       };
   }
 };
@@ -89,7 +78,7 @@ export const ResultCard = ({ result, onReset }: ResultCardProps) => {
   const sugerenciaFoto = result.sugerencia_foto;
   const datoCurioso = result.dato_curioso;
   const ejemplos = result.ejemplos ?? [];
-  const impacto = result.impacto;
+  const impacto = result.impacto_ambiental;
 
   const emoji = extractEmoji(caneca);
   const confidenceStyles = getConfidenceStyles(nivelConfianza);
@@ -99,16 +88,10 @@ export const ResultCard = ({ result, onReset }: ResultCardProps) => {
     <div className="space-y-4 animate-fade-in">
       {/* SECCIÓN 1 - DETECCIÓN */}
       <div className="bg-background rounded-2xl border-2 border-primary/20 p-5 space-y-1">
-        <p className="text-sm font-medium text-muted-foreground">
-          🔍 Detectamos:
-        </p>
-        <p className="text-xl font-bold text-foreground">
-          {objetoDetectadoEspanol}
-        </p>
+        <p className="text-sm font-medium text-muted-foreground">🔍 Detectamos:</p>
+        <p className="text-xl font-bold text-foreground">{objetoDetectadoEspanol}</p>
         {objetoDetectado && objetoDetectado !== objetoDetectadoEspanol && (
-          <p className="text-sm text-muted-foreground">
-            ({objetoDetectado})
-          </p>
+          <p className="text-sm text-muted-foreground">({objetoDetectado})</p>
         )}
       </div>
 
@@ -135,14 +118,10 @@ export const ResultCard = ({ result, onReset }: ResultCardProps) => {
         </div>
 
         {/* Texto caneca */}
-        <p className="text-center text-lg font-semibold text-foreground">
-          {caneca}
-        </p>
+        <p className="text-center text-lg font-semibold text-foreground">{caneca}</p>
 
         {/* Tipo de residuo */}
-        <h3 className="text-center text-2xl font-bold text-foreground">
-          {tipo}
-        </h3>
+        <h3 className="text-center text-2xl font-bold text-foreground">{tipo}</h3>
 
         {/* Badge categoría */}
         <div className="flex justify-center">
@@ -159,21 +138,15 @@ export const ResultCard = ({ result, onReset }: ResultCardProps) => {
         <div className="bg-card rounded-xl p-4 shadow-sm">
           <div className="flex items-start gap-3">
             <span className="text-xl flex-shrink-0">💬</span>
-            <p className="text-foreground text-sm leading-relaxed">
-              {consejo}
-            </p>
+            <p className="text-foreground text-sm leading-relaxed">{consejo}</p>
           </div>
         </div>
 
         {/* Impacto ambiental - SIEMPRE VISIBLE */}
         {impacto && (
           <div className="bg-emerald-50 dark:bg-emerald-950/30 rounded-xl p-4 border border-emerald-200 dark:border-emerald-800">
-            <p className="text-sm font-semibold text-emerald-800 dark:text-emerald-300 mb-2">
-              🌍 Impacto ambiental
-            </p>
-            <p className="text-sm text-emerald-700 dark:text-emerald-400 leading-relaxed">
-              {impacto}
-            </p>
+            <p className="text-sm font-semibold text-emerald-800 dark:text-emerald-300 mb-2">🌍 Impacto ambiental</p>
+            <p className="text-sm text-emerald-700 dark:text-emerald-400 leading-relaxed">{impacto}</p>
           </div>
         )}
       </div>
@@ -185,14 +158,10 @@ export const ResultCard = ({ result, onReset }: ResultCardProps) => {
           <Accordion type="single" collapsible className="bg-card rounded-xl shadow-sm">
             <AccordionItem value="dato-curioso" className="border-none">
               <AccordionTrigger className="px-4 py-3 hover:no-underline">
-                <span className="flex items-center gap-2 text-sm font-medium">
-                  💡 Dato curioso
-                </span>
+                <span className="flex items-center gap-2 text-sm font-medium">💡 Dato curioso</span>
               </AccordionTrigger>
               <AccordionContent className="px-4 pb-4">
-                <p className="text-sm text-muted-foreground leading-relaxed">
-                  {datoCurioso}
-                </p>
+                <p className="text-sm text-muted-foreground leading-relaxed">{datoCurioso}</p>
               </AccordionContent>
             </AccordionItem>
           </Accordion>
@@ -257,11 +226,9 @@ export const ResultCard = ({ result, onReset }: ResultCardProps) => {
         <div className="bg-muted/30 rounded-xl p-4 space-y-3">
           <div className="flex items-center gap-3">
             <span className="text-lg">{emojiConfianza}</span>
-            <span className="text-sm font-medium text-foreground">
-              Confianza: {confianza}%
-            </span>
+            <span className="text-sm font-medium text-foreground">Confianza: {confianza}%</span>
           </div>
-          
+
           {/* Barra de progreso */}
           <div className="h-2 bg-muted rounded-full overflow-hidden">
             <div
@@ -269,18 +236,14 @@ export const ResultCard = ({ result, onReset }: ResultCardProps) => {
               style={{ width: `${confianza}%` }}
             />
           </div>
-          
-          <p className={`text-xs font-medium ${confidenceStyles.textColor}`}>
-            {confidenceStyles.label}
-          </p>
+
+          <p className={`text-xs font-medium ${confidenceStyles.textColor}`}>{confidenceStyles.label}</p>
 
           {/* Card de sugerencia para confianza baja */}
           {isLowConfidence && sugerenciaFoto && (
             <div className="bg-yellow-100 dark:bg-yellow-900/30 border border-yellow-300 dark:border-yellow-700 rounded-lg p-3 flex items-start gap-2">
               <span className="text-sm flex-shrink-0">📸</span>
-              <p className="text-xs text-yellow-800 dark:text-yellow-200">
-                {sugerenciaFoto}
-              </p>
+              <p className="text-xs text-yellow-800 dark:text-yellow-200">{sugerenciaFoto}</p>
             </div>
           )}
         </div>
