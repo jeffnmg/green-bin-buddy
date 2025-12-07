@@ -1,4 +1,4 @@
-# Sistema de Clasificación Inteligente de Residuos con Gamificación
+# EcoScan -  Sistema Inteligente de Residuos con Gamificación
 
 ## Descripción General
 
@@ -78,6 +78,7 @@ Aplicación web progresiva (PWA) desarrollada con React, TypeScript y Supabase q
 │   │       └── index.ts
 │   └── migrations/          # Database migrations
 └── public/
+/
 
 
 ## Modelo de Datos
@@ -187,20 +188,20 @@ El sistema implementa 4 tiers progresivos basados en puntos acumulados:
 ### Logros Predefinidos
 
 #### Por Escaneos
-- Primer Paso (1 escaneo) - 🌱
-- Explorador Verde (10 escaneos) - 🔍
-- Clasificador Experto (50 escaneos) - 🎯
-- Maestro del Reciclaje (100 escaneos) - 🏆
+- Primer Paso (1 escaneo) - 
+- Explorador Verde (10 escaneos) - 
+- Clasificador Experto (50 escaneos) - 
+- Maestro del Reciclaje (100 escaneos) - 
 
 #### Por Racha
-- Racha de 3 días - 🔥
-- Racha de 7 días - ⚡
-- Racha de 30 días - 💎
+- Racha de 3 días - 
+- Racha de 7 días - 
+- Racha de 30 días - 
 
 #### Por Puntos
-- 100 Puntos - ⭐
-- 500 Puntos - 🌟
-- 1000 Puntos - ✨
+- 100 Puntos - 
+- 500 Puntos - 
+- 1000 Puntos - 
 
 ## Flujo de Clasificación de Residuos
 
@@ -711,51 +712,6 @@ try {
 - Limitar rate de requests
 - Implementar captcha en formularios críticos (opcional)
 
-## Roadmap y Mejoras Futuras
-
-### Funcionalidades Planificadas
-
-1. *Integración WhatsApp*
-   - Bot para clasificación vía mensaje
-   - Sistema de origen whatsapp en scans
-
-2. *Geolocalización*
-   - Mapa de puntos de reciclaje cercanos
-   - Integración con Google Maps API
-
-3. *Gamificación Avanzada*
-   - Desafíos semanales
-   - Competencias por equipos
-   - Marketplace de recompensas
-
-4. *Análisis Avanzado*
-   - Dashboard de estadísticas
-   - Gráficos de impacto ambiental
-   - Comparativas temporales
-
-5. *Social Features*
-   - Compartir logros en redes sociales
-   - Sistema de referidos
-   - Grupos y comunidades
-
-### Mejoras Técnicas
-
-- Implementar Service Workers para PWA completa
-- Caché de imágenes clasificadas
-- Modo offline con queue de sincronización
-- Migración a React Server Components
-- Implementar GraphQL en lugar de REST
-- Testing automatizado completo
-
-## Contribución
-
-### Guías de Contribución
-
-1. Fork del repositorio
-2. Crear branch feature: git checkout -b feature/nueva-funcionalidad
-3. Commit cambios: git commit -m 'Añadir nueva funcionalidad'
-4. Push al branch: git push origin feature/nueva-funcionalidad
-5. Crear Pull Request
 
 ### Estándares de Código
 
@@ -767,16 +723,6 @@ try {
   - Hooks: camelCase con prefijo use
   - Utilities: camelCase
   - Constants: UPPER_SNAKE_CASE
-
-## Licencia
-
-Este proyecto es de código cerrado. Todos los derechos reservados.
-
-## Contacto y Soporte
-
-Para reportar bugs o solicitar features, crear un issue en el repositorio.
-
----
 
 *Versión*: 1.0.0  
 *Última actualización*: Diciembre 2024  
