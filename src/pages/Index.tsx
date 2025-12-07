@@ -4,8 +4,8 @@ import { ImagePreview } from "@/components/ImagePreview";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { ResultCard } from "@/components/ResultCard";
 import { ErrorMessage } from "@/components/ErrorMessage";
+import Header from "@/components/Header";
 import { Leaf } from "lucide-react";
-
 interface ClassificationResult {
   tipo?: string;
   caneca?: string;
@@ -84,6 +84,9 @@ const Index = () => {
 
   return (
     <main className="min-h-screen bg-background">
+      {/* Header con usuario */}
+      <Header />
+      
       {/* Header decorativo */}
       <div className="absolute top-0 left-0 right-0 h-64 eco-gradient opacity-5 pointer-events-none" />
 
