@@ -99,10 +99,28 @@ export function useGamification() {
     }
   };
 
-  const registerScan = async (scanData: ScanData): Promise<{ success: boolean; newAchievements: Achievement[] }> => {
+  const registerScan = async (scanData: ScanData): Promise<{ 
+    success: boolean; 
+    newAchievements: Achievement[]; 
+    newPoints: number;
+    totalPoints: number;
+    previousLevel: number;
+    newLevel: number;
+    streak: number;
+  }> => {
+    const defaultReturn = { 
+      success: false, 
+      newAchievements: [], 
+      newPoints: 0, 
+      totalPoints: 0, 
+      previousLevel: 0, 
+      newLevel: 0,
+      streak: 0
+    };
+
     if (!user || !profile) {
       console.warn('No user logged in, scan not saved');
-      return { success: false, newAchievements: [] };
+      return defaultReturn;
     }
 
     try {
@@ -115,11 +133,13 @@ export function useGamification() {
 
       if (userError || !userRecord) {
         console.error('Error fetching user record:', userError);
-        return { success: false, newAchievements: [] };
+        return defaultReturn;
       }
 
       const userId = userRecord.id;
       const puntosGanados = 10;
+      const previousPoints = userRecord.puntos;
+      const previousLevel = Math.floor(previousPoints / 100);
       const now = new Date();
       const today = now.toISOString().split('T')[0];
 
@@ -148,6 +168,8 @@ export function useGamification() {
       }
 
       rachaMaxima = Math.max(rachaMaxima, nuevaRacha);
+      const newTotalPoints = previousPoints + puntosGanados;
+      const newLevel = Math.floor(newTotalPoints / 100);
 
       // Insert scan record
       const { error: scanError } = await supabase
@@ -167,14 +189,14 @@ export function useGamification() {
 
       if (scanError) {
         console.error('Error inserting scan:', scanError);
-        return { success: false, newAchievements: [] };
+        return defaultReturn;
       }
 
       // Update user stats
       const { error: updateError } = await supabase
         .from('users')
         .update({
-          puntos: userRecord.puntos + puntosGanados,
+          puntos: newTotalPoints,
           objetos_escaneados: userRecord.objetos_escaneados + 1,
           racha_actual: nuevaRacha,
           racha_maxima: rachaMaxima,
@@ -184,13 +206,8 @@ export function useGamification() {
 
       if (updateError) {
         console.error('Error updating user stats:', updateError);
-        return { success: false, newAchievements: [] };
+        return defaultReturn;
       }
-
-      // Show points toast
-      toast.success(`+${puntosGanados} puntos 🎉`, {
-        description: nuevaRacha > 1 ? `🔥 Racha de ${nuevaRacha} días` : undefined,
-      });
 
       // Check for new achievements
       const newAchievements = await checkAchievements(userId);
@@ -205,10 +222,18 @@ export function useGamification() {
         }, 1000);
       }
 
-      return { success: true, newAchievements };
+      return { 
+        success: true, 
+        newAchievements, 
+        newPoints: puntosGanados, 
+        totalPoints: newTotalPoints,
+        previousLevel,
+        newLevel,
+        streak: nuevaRacha
+      };
     } catch (error) {
       console.error('Error registering scan:', error);
-      return { success: false, newAchievements: [] };
+      return defaultReturn;
     }
   };
 
