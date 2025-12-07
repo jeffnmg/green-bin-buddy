@@ -37,7 +37,10 @@ interface ResultCardProps {
   onReset: () => void;
 }
 
-const extractEmoji = (caneca: string): string => {
+const extractEmoji = (caneca?: string): string => {
+  if (!caneca || typeof caneca !== 'string') {
+    return "♻️";
+  }
   const emojiRegex = /^[\p{Emoji_Presentation}\p{Extended_Pictographic}]/u;
   const match = caneca.match(emojiRegex);
   return match ? match[0] : "♻️";
