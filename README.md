@@ -38,9 +38,10 @@ Aplicación web progresiva (PWA) desarrollada con React, TypeScript y Supabase q
 
 
 
+```
 ├── src/
-│   ├── components/           # Componentes React reutilizables
-│   │   ├── ui/              # Componentes base de Shadcn
+│   ├── components/                # Componentes React reutilizables
+│   │   ├── ui/                   # Componentes base de Shadcn
 │   │   ├── AchievementBadge.tsx
 │   │   ├── ChatWidget.tsx
 │   │   ├── Header.tsx
@@ -51,20 +52,20 @@ Aplicación web progresiva (PWA) desarrollada con React, TypeScript y Supabase q
 │   │   ├── ResultCard.tsx
 │   │   ├── ScanHistory.tsx
 │   │   └── UserStatsCard.tsx
-│   ├── contexts/            # Context providers
+│   ├── contexts/                  # Context providers
 │   │   └── AuthContext.tsx
-│   ├── hooks/               # Custom React hooks
+│   ├── hooks/                     # Custom React hooks
 │   │   ├── useGamification.ts
 │   │   ├── useOnboarding.ts
 │   │   └── use-toast.ts
-│   ├── integrations/        # Integraciones externas
+│   ├── integrations/              # Integraciones externas
 │   │   └── supabase/
 │   │       ├── client.ts
 │   │       └── types.ts
-│   ├── lib/                 # Utilidades y helpers
+│   ├── lib/                       # Utilidades y helpers
 │   │   ├── levelSystem.ts
 │   │   └── utils.ts
-│   ├── pages/               # Páginas de la aplicación
+│   ├── pages/                     # Páginas de la aplicación
 │   │   ├── Index.tsx
 │   │   ├── Auth.tsx
 │   │   ├── Profile.tsx
@@ -73,11 +74,12 @@ Aplicación web progresiva (PWA) desarrollada con React, TypeScript y Supabase q
 │   │   └── NotFound.tsx
 │   └── App.tsx
 ├── supabase/
-│   ├── functions/           # Edge Functions
+│   ├── functions/                 # Edge Functions
 │   │   └── chat/
 │   │       └── index.ts
-│   └── migrations/          # Database migrations
+│   └── migrations/                # Database migrations
 └── public/
+```
 
 
 
