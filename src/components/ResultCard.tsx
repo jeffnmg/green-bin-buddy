@@ -1,4 +1,4 @@
-import { Recycle, Lightbulb, Camera, Tag, CheckCircle, XCircle, ChevronDown, List, Star, Leaf } from "lucide-react";
+import { Camera, Tag, CheckCircle, XCircle, MapPin, Package } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Accordion,
@@ -43,16 +43,32 @@ const extractEmoji = (caneca: string): string => {
   return match ? match[0] : "♻️";
 };
 
-const getConfidenceColor = (nivel: string): { bar: string; text: string; bg: string } => {
+const getConfidenceStyles = (nivel: string) => {
   switch (nivel) {
     case "alta":
-      return { bar: "bg-success", text: "text-success", bg: "bg-success/10" };
+      return { 
+        barColor: "bg-success", 
+        textColor: "text-success",
+        label: "Alta precisión"
+      };
     case "media":
-      return { bar: "bg-yellow-500", text: "text-yellow-600", bg: "bg-yellow-500/10" };
+      return { 
+        barColor: "bg-yellow-500", 
+        textColor: "text-yellow-600",
+        label: "Precisión media"
+      };
     case "baja":
-      return { bar: "bg-destructive", text: "text-destructive", bg: "bg-destructive/10" };
+      return { 
+        barColor: "bg-destructive", 
+        textColor: "text-destructive",
+        label: "⚠️ Confianza baja"
+      };
     default:
-      return { bar: "bg-muted", text: "text-muted-foreground", bg: "bg-muted/50" };
+      return { 
+        barColor: "bg-muted", 
+        textColor: "text-muted-foreground",
+        label: "Sin datos"
+      };
   }
 };
 
@@ -64,71 +80,38 @@ export const ResultCard = ({ result, onReset }: ResultCardProps) => {
   const confianza = result.confianza ?? 0;
   const reciclable = result.reciclable ?? false;
   const objetoDetectado = result.objeto_detectado ?? "";
-  const objetoDetectadoEspanol = result.objeto_detectado_espanol ?? objetoDetectado;
+  const objetoDetectadoEspanol = result.objeto_detectado_espanol || objetoDetectado || "Objeto";
   const emojiConfianza = result.emoji_confianza ?? "📊";
   const nivelConfianza = result.nivel_confianza ?? "media";
   const sugerenciaFoto = result.sugerencia_foto;
   const datoCurioso = result.dato_curioso;
   const ejemplos = result.ejemplos ?? [];
-  const puntos = result.puntos;
   const impacto = result.impacto;
 
   const emoji = extractEmoji(caneca);
-  const confidenceColors = getConfidenceColor(nivelConfianza);
-  const showRetakePhoto = sugerenciaFoto || nivelConfianza === "baja";
+  const confidenceStyles = getConfidenceStyles(nivelConfianza);
+  const isLowConfidence = nivelConfianza === "baja";
 
   return (
-    <div className="space-y-4 animate-fade-in-up">
+    <div className="space-y-4 animate-fade-in">
       {/* SECCIÓN 1 - DETECCIÓN */}
-      <div className="bg-muted/50 rounded-2xl p-5 space-y-4">
-        {/* Objeto detectado */}
-        <div className="space-y-1">
-          <p className="text-sm font-medium text-muted-foreground flex items-center gap-1.5">
-            🔍 Objeto detectado
+      <div className="bg-background rounded-2xl border-2 border-primary/20 p-5 space-y-1">
+        <p className="text-sm font-medium text-muted-foreground">
+          🔍 Detectamos:
+        </p>
+        <p className="text-xl font-bold text-foreground">
+          {objetoDetectadoEspanol}
+        </p>
+        {objetoDetectado && objetoDetectado !== objetoDetectadoEspanol && (
+          <p className="text-sm text-muted-foreground">
+            ({objetoDetectado})
           </p>
-          <p className="text-2xl font-bold text-foreground">
-            {objetoDetectadoEspanol}
-          </p>
-          {objetoDetectado && objetoDetectado !== objetoDetectadoEspanol && (
-            <p className="text-sm text-muted-foreground">
-              (detectado como: {objetoDetectado})
-            </p>
-          )}
-        </div>
-
-        {/* Barra de confianza */}
-        <div className="space-y-2">
-          <div className="flex items-center gap-3">
-            <span className="text-xl">{emojiConfianza}</span>
-            <div className="flex-1 h-3 bg-muted rounded-full overflow-hidden">
-              <div
-                className={`h-full ${confidenceColors.bar} rounded-full transition-all duration-700`}
-                style={{ width: `${confianza}%` }}
-              />
-            </div>
-            <span className={`text-lg font-bold ${confidenceColors.text}`}>
-              {confianza}%
-            </span>
-          </div>
-          <p className={`text-sm font-medium ${confidenceColors.text}`}>
-            Confianza {nivelConfianza}
-          </p>
-        </div>
-
-        {/* Sugerencia de foto */}
-        {sugerenciaFoto && (
-          <div className="bg-yellow-100 dark:bg-yellow-900/30 border border-yellow-300 dark:border-yellow-700 rounded-xl p-4 flex items-start gap-3">
-            <span className="text-xl flex-shrink-0">💡</span>
-            <p className="text-sm text-yellow-800 dark:text-yellow-200">
-              {sugerenciaFoto}
-            </p>
-          </div>
         )}
       </div>
 
-      {/* SECCIÓN 2 - CLASIFICACIÓN */}
+      {/* SECCIÓN 2 - CLASIFICACIÓN PRINCIPAL */}
       <div className="bg-card rounded-2xl shadow-card p-6 space-y-4">
-        {/* Badge reciclable en esquina */}
+        {/* Badge reciclable */}
         <div className="flex justify-end">
           {reciclable ? (
             <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-success/10 text-success text-sm font-medium">
@@ -143,7 +126,7 @@ export const ResultCard = ({ result, onReset }: ResultCardProps) => {
           )}
         </div>
 
-        {/* Emoji grande de caneca */}
+        {/* Emoji caneca 80px */}
         <div className="text-center">
           <span className="text-[80px] leading-none block">{emoji}</span>
         </div>
@@ -165,21 +148,34 @@ export const ResultCard = ({ result, onReset }: ResultCardProps) => {
             {categoria}
           </span>
         </div>
+      </div>
 
+      {/* SECCIÓN 3 - INFORMACIÓN ÚTIL */}
+      <div className="space-y-3">
         {/* Consejo principal */}
-        <div className="bg-accent/50 rounded-xl p-4">
+        <div className="bg-card rounded-xl p-4 shadow-sm">
           <div className="flex items-start gap-3">
-            <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-              <Lightbulb className="w-4 h-4 text-primary" />
-            </div>
+            <span className="text-xl flex-shrink-0">💬</span>
             <p className="text-foreground text-sm leading-relaxed">
               {consejo}
             </p>
           </div>
         </div>
+
+        {/* Impacto ambiental - SIEMPRE VISIBLE */}
+        {impacto && (
+          <div className="bg-emerald-50 dark:bg-emerald-950/30 rounded-xl p-4 border border-emerald-200 dark:border-emerald-800">
+            <p className="text-sm font-semibold text-emerald-800 dark:text-emerald-300 mb-2">
+              🌍 Impacto ambiental
+            </p>
+            <p className="text-sm text-emerald-700 dark:text-emerald-400 leading-relaxed">
+              {impacto}
+            </p>
+          </div>
+        )}
       </div>
 
-      {/* SECCIÓN 3 - INFO ADICIONAL */}
+      {/* SECCIÓN 4 - INFORMACIÓN ADICIONAL */}
       <div className="space-y-3">
         {/* Acordeón dato curioso */}
         {datoCurioso && (
@@ -187,7 +183,7 @@ export const ResultCard = ({ result, onReset }: ResultCardProps) => {
             <AccordionItem value="dato-curioso" className="border-none">
               <AccordionTrigger className="px-4 py-3 hover:no-underline">
                 <span className="flex items-center gap-2 text-sm font-medium">
-                  🧠 Dato curioso
+                  💡 Dato curioso
                 </span>
               </AccordionTrigger>
               <AccordionContent className="px-4 pb-4">
@@ -199,14 +195,14 @@ export const ResultCard = ({ result, onReset }: ResultCardProps) => {
           </Accordion>
         )}
 
-        {/* Botones de modales */}
+        {/* Botones modales */}
         <div className="flex flex-wrap gap-2 justify-center">
           {ejemplos.length > 0 && (
             <Dialog>
               <DialogTrigger asChild>
                 <Button variant="outline" size="sm" className="gap-1.5">
-                  <List className="w-4 h-4" />
-                  Ejemplos
+                  <Package className="w-4 h-4" />
+                  📦 Ver ejemplos similares
                 </Button>
               </DialogTrigger>
               <DialogContent>
@@ -225,66 +221,76 @@ export const ResultCard = ({ result, onReset }: ResultCardProps) => {
             </Dialog>
           )}
 
-          {puntos !== undefined && (
-            <Dialog>
-              <DialogTrigger asChild>
-                <Button variant="outline" size="sm" className="gap-1.5">
-                  <Star className="w-4 h-4" />
-                  Puntos
-                </Button>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Puntos obtenidos</DialogTitle>
-                </DialogHeader>
-                <div className="text-center py-6">
-                  <span className="text-5xl font-bold text-primary">+{puntos}</span>
-                  <p className="text-muted-foreground mt-2">puntos por reciclar correctamente</p>
-                </div>
-              </DialogContent>
-            </Dialog>
-          )}
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button variant="outline" size="sm" className="gap-1.5">
+                <MapPin className="w-4 h-4" />
+                📍 ¿Dónde reciclarlo?
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>¿Dónde reciclarlo?</DialogTitle>
+              </DialogHeader>
+              <div className="mt-4 space-y-3">
+                <p className="text-sm text-muted-foreground">
+                  Deposita este residuo en la <strong>{caneca}</strong>.
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  Busca puntos de reciclaje cercanos en tu comunidad o consulta con tu municipio.
+                </p>
+              </div>
+            </DialogContent>
+          </Dialog>
+        </div>
+      </div>
 
-          {impacto && (
-            <Dialog>
-              <DialogTrigger asChild>
-                <Button variant="outline" size="sm" className="gap-1.5">
-                  <Leaf className="w-4 h-4" />
-                  Impacto
-                </Button>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Impacto ambiental</DialogTitle>
-                </DialogHeader>
-                <div className="mt-4">
-                  <p className="text-sm text-muted-foreground leading-relaxed">
-                    {impacto}
-                  </p>
-                </div>
-              </DialogContent>
-            </Dialog>
+      {/* SECCIÓN 5 - CONFIANZA Y ACCIÓN */}
+      <div className="space-y-4">
+        {/* Separador */}
+        <div className="border-t border-border" />
+
+        {/* Tarjeta de confianza */}
+        <div className="bg-muted/30 rounded-xl p-4 space-y-3">
+          <div className="flex items-center gap-3">
+            <span className="text-lg">{emojiConfianza}</span>
+            <span className="text-sm font-medium text-foreground">
+              Confianza: {confianza}%
+            </span>
+          </div>
+          
+          {/* Barra de progreso */}
+          <div className="h-2 bg-muted rounded-full overflow-hidden">
+            <div
+              className={`h-full ${confidenceStyles.barColor} rounded-full transition-all duration-700`}
+              style={{ width: `${confianza}%` }}
+            />
+          </div>
+          
+          <p className={`text-xs font-medium ${confidenceStyles.textColor}`}>
+            {confidenceStyles.label}
+          </p>
+
+          {/* Card de sugerencia para confianza baja */}
+          {isLowConfidence && sugerenciaFoto && (
+            <div className="bg-yellow-100 dark:bg-yellow-900/30 border border-yellow-300 dark:border-yellow-700 rounded-lg p-3 flex items-start gap-2">
+              <span className="text-sm flex-shrink-0">📸</span>
+              <p className="text-xs text-yellow-800 dark:text-yellow-200">
+                {sugerenciaFoto}
+              </p>
+            </div>
           )}
         </div>
 
         {/* Botón principal */}
         <Button
-          variant={showRetakePhoto ? "eco" : "eco-outline"}
+          variant={isLowConfidence ? "eco" : "outline"}
           size="lg"
-          className={`w-full ${nivelConfianza === "baja" ? "animate-pulse" : ""}`}
+          className={`w-full gap-2 ${isLowConfidence ? "shadow-lg" : ""}`}
           onClick={onReset}
         >
-          {showRetakePhoto ? (
-            <>
-              <Camera className="w-5 h-5" />
-              Tomar otra foto
-            </>
-          ) : (
-            <>
-              <Recycle className="w-5 h-5" />
-              Clasificar otro residuo
-            </>
-          )}
+          <Camera className="w-5 h-5" />
+          {isLowConfidence ? "📸 Tomar otra foto" : "📸 Clasificar otro residuo"}
         </Button>
       </div>
     </div>
