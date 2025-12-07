@@ -2,7 +2,7 @@ import { Camera, Tag, CheckCircle, XCircle, MapPin, Package } from "lucide-react
 import { Button } from "@/components/ui/button";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-
+import { ShareResult } from "@/components/ShareResult";
 interface ClassificationResult {
   tipo?: string;
   caneca?: string;
@@ -214,6 +214,9 @@ export const ResultCard = ({ result, onReset }: ResultCardProps) => {
               </div>
             </DialogContent>
           </Dialog>
+
+          {/* Share button */}
+          <ShareResult objeto={objetoDetectadoEspanol} reciclable={reciclable} />
         </div>
       </div>
 

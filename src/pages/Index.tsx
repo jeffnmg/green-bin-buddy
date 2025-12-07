@@ -1,11 +1,16 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ImageUploader } from "@/components/ImageUploader";
 import { ImagePreview } from "@/components/ImagePreview";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { ResultCard } from "@/components/ResultCard";
 import { ErrorMessage } from "@/components/ErrorMessage";
 import Header from "@/components/Header";
+import { UserStatsCard } from "@/components/UserStatsCard";
+import { PointsAnimation } from "@/components/PointsAnimation";
+import { LevelUpCelebration } from "@/components/LevelUpCelebration";
+import { AchievementBadge } from "@/components/AchievementBadge";
 import { useGamification } from "@/hooks/useGamification";
+import { useAuth } from "@/contexts/AuthContext";
 import { Leaf } from "lucide-react";
 
 interface ClassificationResult {
@@ -26,6 +31,12 @@ interface ClassificationResult {
   puntos?: number;
 }
 
+interface Achievement {
+  id: string;
+  nombre: string;
+  icono: string;
+}
+
 const Index = () => {
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
@@ -33,13 +44,31 @@ const Index = () => {
   const [result, setResult] = useState<ClassificationResult | null>(null);
   const [error, setError] = useState<string | null>(null);
   
+  // Gamification state
+  const [showPointsAnimation, setShowPointsAnimation] = useState(false);
+  const [earnedPoints, setEarnedPoints] = useState(0);
+  const [showLevelUp, setShowLevelUp] = useState(false);
+  const [newLevel, setNewLevel] = useState(0);
+  const [newAchievements, setNewAchievements] = useState<Achievement[]>([]);
+  const [displayedPoints, setDisplayedPoints] = useState(0);
+  
   const { registerScan } = useGamification();
+  const { profile } = useAuth();
+
+  // Sync displayed points with profile
+  useEffect(() => {
+    if (profile) {
+      setDisplayedPoints(profile.puntos);
+    }
+  }, [profile?.puntos]);
 
   const handleImageSelect = async (file: File) => {
     setSelectedImage(file);
     setImagePreview(URL.createObjectURL(file));
     setError(null);
     setResult(null);
+    setShowPointsAnimation(false);
+    setNewAchievements([]);
 
     await classifyImage(file);
   };
@@ -68,7 +97,7 @@ const Index = () => {
       setResult(data);
 
       // Register scan in gamification system
-      await registerScan({
+      const scanResult = await registerScan({
         objeto_detectado: data.objeto_detectado || data.tipo || 'objeto',
         objeto_detectado_espanol: data.objeto_detectado_espanol,
         tipo: data.tipo,
@@ -76,6 +105,28 @@ const Index = () => {
         reciclable: data.reciclable,
         confianza: data.confianza,
       });
+
+      if (scanResult.success) {
+        // Trigger points animation
+        setEarnedPoints(scanResult.newPoints);
+        setShowPointsAnimation(true);
+        
+        // Update displayed points with animation
+        setDisplayedPoints(scanResult.totalPoints);
+        
+        // Check for level up
+        if (scanResult.newLevel > scanResult.previousLevel) {
+          setTimeout(() => {
+            setNewLevel(scanResult.newLevel);
+            setShowLevelUp(true);
+          }, 800);
+        }
+        
+        // Show new achievements
+        if (scanResult.newAchievements.length > 0) {
+          setNewAchievements(scanResult.newAchievements);
+        }
+      }
     } catch (err) {
       console.error("Error clasificando imagen:", err);
       setError(
@@ -97,6 +148,8 @@ const Index = () => {
     setResult(null);
     setError(null);
     setIsLoading(false);
+    setShowPointsAnimation(false);
+    setNewAchievements([]);
   };
 
   const handleRetry = () => {
@@ -115,7 +168,7 @@ const Index = () => {
 
       <div className="container max-w-xl mx-auto py-8 md:py-12 px-4 relative">
         {/* Header */}
-        <header className="text-center mb-10 animate-fade-in">
+        <header className="text-center mb-8 animate-fade-in">
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl eco-gradient shadow-eco mb-6">
             <Leaf className="w-8 h-8 text-primary-foreground" />
           </div>
@@ -127,8 +180,18 @@ const Index = () => {
           </p>
         </header>
 
+        {/* User Stats Card - Before classification */}
+        {!result && !isLoading && (
+          <div className="mb-6 animate-fade-in-up" style={{ animationDelay: "0.05s" }}>
+            <UserStatsCard />
+          </div>
+        )}
+
         {/* Contenido principal */}
-        <section className="space-y-6">
+        <section className="space-y-6 relative">
+          {/* Points Animation */}
+          <PointsAnimation points={earnedPoints} show={showPointsAnimation} />
+          
           {/* Uploader o Preview */}
           {!imagePreview ? (
             <div
@@ -156,9 +219,28 @@ const Index = () => {
           )}
 
           {result && !isLoading && !error && (
-            <ResultCard result={result} onReset={handleReset} />
+            <>
+              <ResultCard result={result} onReset={handleReset} />
+              
+              {/* New achievements badges */}
+              {newAchievements.length > 0 && (
+                <div className="mt-4">
+                  <p className="text-sm text-center text-muted-foreground mb-2">
+                    ¡Logros desbloqueados!
+                  </p>
+                  <AchievementBadge achievements={newAchievements} />
+                </div>
+              )}
+            </>
           )}
         </section>
+
+        {/* Level Up Celebration Modal */}
+        <LevelUpCelebration 
+          show={showLevelUp} 
+          newLevel={newLevel} 
+          onClose={() => setShowLevelUp(false)} 
+        />
 
         {/* Footer */}
         <footer
