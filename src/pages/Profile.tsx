@@ -3,32 +3,23 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import {
   ArrowLeft,
   Trophy,
   Package,
   Flame,
   Star,
-  Search,
-  Calendar,
   LogOut,
 } from "lucide-react";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { toast } from "sonner";
 import { getLevelInfo, getLevelEmoji } from "@/lib/levelSystem";
+import { ScanHistory } from "@/components/ScanHistory";
 
 interface UserStats {
   id: string;
@@ -61,6 +52,7 @@ interface Scan {
   puntos_ganados: number;
   origen: string;
   created_at: string;
+  confianza?: number;
 }
 
 export default function Profile() {
@@ -70,9 +62,6 @@ export default function Profile() {
   const [achievements, setAchievements] = useState<Achievement[]>([]);
   const [scans, setScans] = useState<Scan[]>([]);
   const [loading, setLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [filterType, setFilterType] = useState<string>("all");
-  const [filterOrigin, setFilterOrigin] = useState<string>("all");
 
   useEffect(() => {
     if (user) {
@@ -183,24 +172,6 @@ export default function Profile() {
     return `${current}/${achievement.umbral}`;
   };
 
-  const filteredScans = scans.filter((scan) => {
-    const matchesSearch =
-      searchQuery === "" ||
-      (scan.objeto_detectado_espanol || scan.objeto_detectado)
-        .toLowerCase()
-        .includes(searchQuery.toLowerCase()) ||
-      (scan.tipo_residuo || "").toLowerCase().includes(searchQuery.toLowerCase());
-
-    const matchesType =
-      filterType === "all" || scan.tipo_residuo === filterType;
-
-    const matchesOrigin =
-      filterOrigin === "all" || scan.origen === filterOrigin;
-
-    return matchesSearch && matchesType && matchesOrigin;
-  });
-
-  const uniqueTypes = [...new Set(scans.map((s) => s.tipo_residuo).filter(Boolean))];
   const unlockedCount = achievements.filter((a) => a.unlocked).length;
 
   if (loading) {
@@ -404,97 +375,7 @@ export default function Profile() {
         </Card>
 
         {/* Scan History Section */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Calendar className="w-5 h-5 text-primary" />
-              Historial de Escaneos
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {/* Filters */}
-            <div className="flex flex-col sm:flex-row gap-3">
-              <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                <Input
-                  placeholder="Buscar por objeto o tipo..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-9"
-                />
-              </div>
-              <Select value={filterType} onValueChange={setFilterType}>
-                <SelectTrigger className="w-full sm:w-40">
-                  <SelectValue placeholder="Tipo" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Todos los tipos</SelectItem>
-                  {uniqueTypes.map((type) => (
-                    <SelectItem key={type} value={type!}>
-                      {type}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <Select value={filterOrigin} onValueChange={setFilterOrigin}>
-                <SelectTrigger className="w-full sm:w-32">
-                  <SelectValue placeholder="Origen" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Todos</SelectItem>
-                  <SelectItem value="web">🌐 Web</SelectItem>
-                  <SelectItem value="whatsapp">📱 WhatsApp</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* Scan List */}
-            {filteredScans.length === 0 ? (
-              <div className="text-center py-8 text-muted-foreground">
-                <Package className="w-12 h-12 mx-auto mb-3 opacity-50" />
-                <p>No hay escaneos que coincidan</p>
-              </div>
-            ) : (
-              <div className="space-y-2">
-                {filteredScans.slice(0, 20).map((scan) => (
-                  <div
-                    key={scan.id}
-                    className="flex items-center gap-3 p-3 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors"
-                  >
-                    <div
-                      className={`w-10 h-10 rounded-full flex items-center justify-center text-lg ${
-                        scan.reciclable
-                          ? "bg-emerald-500/20 text-emerald-600"
-                          : "bg-red-500/20 text-red-600"
-                      }`}
-                    >
-                      {scan.reciclable ? "♻️" : "🗑️"}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="font-medium text-sm text-foreground truncate">
-                        {scan.objeto_detectado_espanol || scan.objeto_detectado}
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        {scan.tipo_residuo} • {scan.caneca}
-                      </p>
-                    </div>
-                    <div className="text-right flex-shrink-0">
-                      <p className="text-sm font-medium text-primary">
-                        +{scan.puntos_ganados}
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        {scan.origen === "whatsapp" ? "📱" : "🌐"}{" "}
-                        {format(new Date(scan.created_at), "dd/MM", {
-                          locale: es,
-                        })}
-                      </p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </CardContent>
-        </Card>
+        <ScanHistory scans={scans} />
       </main>
     </div>
   );
