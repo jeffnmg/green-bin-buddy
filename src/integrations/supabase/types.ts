@@ -14,7 +14,173 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      achievements: {
+        Row: {
+          activo: boolean
+          created_at: string
+          descripcion: string
+          icono: string
+          id: string
+          nombre: string
+          tipo: Database["public"]["Enums"]["achievement_type"]
+          umbral: number
+        }
+        Insert: {
+          activo?: boolean
+          created_at?: string
+          descripcion: string
+          icono?: string
+          id?: string
+          nombre: string
+          tipo: Database["public"]["Enums"]["achievement_type"]
+          umbral: number
+        }
+        Update: {
+          activo?: boolean
+          created_at?: string
+          descripcion?: string
+          icono?: string
+          id?: string
+          nombre?: string
+          tipo?: Database["public"]["Enums"]["achievement_type"]
+          umbral?: number
+        }
+        Relationships: []
+      }
+      scans: {
+        Row: {
+          caneca: string | null
+          confianza: number | null
+          created_at: string
+          id: string
+          imagen_url: string | null
+          objeto_detectado: string
+          objeto_detectado_espanol: string | null
+          origen: Database["public"]["Enums"]["scan_origin"]
+          puntos_ganados: number
+          reciclable: boolean
+          tipo_residuo: string | null
+          user_id: string
+        }
+        Insert: {
+          caneca?: string | null
+          confianza?: number | null
+          created_at?: string
+          id?: string
+          imagen_url?: string | null
+          objeto_detectado: string
+          objeto_detectado_espanol?: string | null
+          origen?: Database["public"]["Enums"]["scan_origin"]
+          puntos_ganados?: number
+          reciclable?: boolean
+          tipo_residuo?: string | null
+          user_id: string
+        }
+        Update: {
+          caneca?: string | null
+          confianza?: number | null
+          created_at?: string
+          id?: string
+          imagen_url?: string | null
+          objeto_detectado?: string
+          objeto_detectado_espanol?: string | null
+          origen?: Database["public"]["Enums"]["scan_origin"]
+          puntos_ganados?: number
+          reciclable?: boolean
+          tipo_residuo?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "scans_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_achievements: {
+        Row: {
+          achievement_id: string
+          id: string
+          unlocked_at: string
+          user_id: string
+        }
+        Insert: {
+          achievement_id: string
+          id?: string
+          unlocked_at?: string
+          user_id: string
+        }
+        Update: {
+          achievement_id?: string
+          id?: string
+          unlocked_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_achievements_achievement_id_fkey"
+            columns: ["achievement_id"]
+            isOneToOne: false
+            referencedRelation: "achievements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_achievements_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      users: {
+        Row: {
+          auth_user_id: string | null
+          created_at: string
+          email: string
+          id: string
+          objetos_escaneados: number
+          phone_number: string | null
+          puntos: number
+          racha_actual: number
+          racha_maxima: number
+          ultimo_escaneo: string | null
+          updated_at: string
+          username: string
+        }
+        Insert: {
+          auth_user_id?: string | null
+          created_at?: string
+          email: string
+          id?: string
+          objetos_escaneados?: number
+          phone_number?: string | null
+          puntos?: number
+          racha_actual?: number
+          racha_maxima?: number
+          ultimo_escaneo?: string | null
+          updated_at?: string
+          username: string
+        }
+        Update: {
+          auth_user_id?: string | null
+          created_at?: string
+          email?: string
+          id?: string
+          objetos_escaneados?: number
+          phone_number?: string | null
+          puntos?: number
+          racha_actual?: number
+          racha_maxima?: number
+          ultimo_escaneo?: string | null
+          updated_at?: string
+          username?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -23,7 +189,8 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      achievement_type: "puntos" | "escaneos" | "racha"
+      scan_origin: "web" | "whatsapp"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +317,9 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      achievement_type: ["puntos", "escaneos", "racha"],
+      scan_origin: ["web", "whatsapp"],
+    },
   },
 } as const
