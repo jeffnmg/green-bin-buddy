@@ -1,10 +1,12 @@
-import { useState, useEffect } from "react";
-import { MessageCircle, X, Send } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
+import { MessageCircle, X, Send, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Input } from "@/components/ui/input";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { getLevelInfo } from "@/lib/levelSystem";
+import { useToast } from "@/hooks/use-toast";
 
 interface Message {
   id: string;
@@ -40,16 +42,26 @@ const RECYCLING_LOCATIONS: Record<string, string> = {
 
 export function ChatWidget() {
   const { profile, user } = useAuth();
+  const { toast } = useToast();
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [achievements, setAchievements] = useState<ChatAchievement[]>([]);
   const [recentWasteTypes, setRecentWasteTypes] = useState<string[]>([]);
+  const [inputMessage, setInputMessage] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [userInternalId, setUserInternalId] = useState<string | null>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (user && isOpen) {
       fetchUserData();
     }
   }, [user, isOpen]);
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
 
   useEffect(() => {
     if (isOpen && messages.length === 0) {
@@ -74,6 +86,8 @@ export function ChatWidget() {
       .maybeSingle();
 
     if (!userData) return;
+    
+    setUserInternalId(userData.id);
 
     // Fetch achievements
     const { data: allAchievements } = await supabase
@@ -178,6 +192,57 @@ export function ChatWidget() {
     setMessages((prev) => [...prev, userMessage, botResponse]);
   };
 
+  const sendMessageToAI = async (message: string) => {
+    if (!message.trim() || !userInternalId || isLoading) return;
+
+    const userMessage: Message = {
+      id: `user-${Date.now()}`,
+      type: "user",
+      text: message,
+    };
+
+    setMessages((prev) => [...prev, userMessage]);
+    setInputMessage("");
+    setIsLoading(true);
+
+    try {
+      const { data, error } = await supabase.functions.invoke("chat", {
+        body: { message, userId: userInternalId },
+      });
+
+      if (error) throw error;
+
+      const botResponse: Message = {
+        id: `bot-${Date.now()}`,
+        type: "bot",
+        text: data.response || "Lo siento, no pude procesar tu pregunta.",
+      };
+
+      setMessages((prev) => [...prev, botResponse]);
+    } catch (error) {
+      console.error("Error calling chat function:", error);
+      toast({
+        title: "Error",
+        description: "No se pudo obtener respuesta del asistente.",
+        variant: "destructive",
+      });
+      
+      const errorMessage: Message = {
+        id: `bot-${Date.now()}`,
+        type: "bot",
+        text: "Lo siento, ocurrió un error. Por favor intenta de nuevo.",
+      };
+      setMessages((prev) => [...prev, errorMessage]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    sendMessageToAI(inputMessage);
+  };
+
   const formatMessage = (text: string) => {
     return text.split("\n").map((line, i) => {
       // Handle bold text
@@ -217,7 +282,7 @@ export function ChatWidget() {
           </div>
 
           {/* Messages */}
-          <ScrollArea className="h-72 p-4">
+          <ScrollArea className="h-64 p-4">
             <div className="space-y-4">
               {messages.map((message) => (
                 <div
@@ -235,8 +300,35 @@ export function ChatWidget() {
                   </div>
                 </div>
               ))}
+              {isLoading && (
+                <div className="flex justify-start">
+                  <div className="bg-muted text-foreground rounded-2xl rounded-bl-md p-3">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  </div>
+                </div>
+              )}
+              <div ref={messagesEndRef} />
             </div>
           </ScrollArea>
+
+          {/* Text Input */}
+          <form onSubmit={handleSubmit} className="p-3 border-t border-border flex gap-2">
+            <Input
+              value={inputMessage}
+              onChange={(e) => setInputMessage(e.target.value)}
+              placeholder="Escribe tu pregunta..."
+              className="flex-1 text-sm"
+              disabled={isLoading}
+            />
+            <Button
+              type="submit"
+              size="icon"
+              disabled={isLoading || !inputMessage.trim()}
+              className="shrink-0"
+            >
+              {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+            </Button>
+          </form>
 
           {/* Quick Questions */}
           <div className="p-4 border-t border-border bg-background/50">
